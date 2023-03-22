@@ -1,25 +1,63 @@
-import 'package:camera/camera.dart';
-import 'package:flutter/material.dart';
+import 'package:aws_rekognition_api/rekognition-2016-06-27.dart'
+    show AwsClientCredentials, Rekognition;
+import 'package:camera/camera.dart' show CameraDescription, availableCameras;
+import 'package:flutter/material.dart'
+    show
+        AppBar,
+        BuildContext,
+        Card,
+        Center,
+        Colors,
+        Column,
+        EdgeInsets,
+        ExpansionTile,
+        FontWeight,
+        ListTile,
+        MaterialApp,
+        MaterialPageRoute,
+        Navigator,
+        Padding,
+        SafeArea,
+        Scaffold,
+        ScaffoldMessenger,
+        SingleChildScrollView,
+        SizedBox,
+        SnackBar,
+        StatelessWidget,
+        Text,
+        TextStyle,
+        Theme,
+        Widget,
+        WidgetsFlutterBinding,
+        runApp;
 
-import 'nlp_detector_views/entity_extraction_view.dart';
-import 'nlp_detector_views/language_identifier_view.dart';
-import 'nlp_detector_views/language_translator_view.dart';
-import 'nlp_detector_views/smart_reply_view.dart';
-import 'vision_detector_views/barcode_scanner_view.dart';
-import 'vision_detector_views/digital_ink_recognizer_view.dart';
 import 'vision_detector_views/face_detector_view.dart';
-import 'vision_detector_views/label_detector_view.dart';
-import 'vision_detector_views/object_detector_view.dart';
-import 'vision_detector_views/pose_detector_view.dart';
-import 'vision_detector_views/selfie_segmenter_view.dart';
-import 'vision_detector_views/text_detector_view.dart';
 
 List<CameraDescription> cameras = [];
+final rekoService = Rekognition(
+  region: 'us-east-1',
+  credentials: AwsClientCredentials(
+    secretKey: 'eLP/PP3V9g8O7DoJoslnso6A4doKyl3N7327nvwY',
+    accessKey: 'AKIA4YLFYXQWTBZNKR4I',
+  ),
+);
+
+String collectionName = 'collectionId';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   cameras = await availableCameras();
+
+  try {
+    final value = await rekoService.describeCollection(collectionId: collectionName);
+    print('faceModelVersion :: ${value.faceModelVersion}');
+    print('collectionARN :: ${value.collectionARN}');
+    print('creationTimestamp :: ${value.creationTimestamp}');
+    print('faceCount :: ${value.faceCount}');
+  } catch (e) {
+    print('ErrorAws :: $e');
+  }
 
   runApp(MyApp());
 }
@@ -53,14 +91,14 @@ class Home extends StatelessWidget {
                   ExpansionTile(
                     title: const Text('Vision APIs'),
                     children: [
-                      CustomCard('Barcode Scanning', BarcodeScannerView()),
+                      // CustomCard('Barcode Scanning', BarcodeScannerView()),
                       CustomCard('Face Detection', FaceDetectorView()),
-                      CustomCard('Image Labeling', ImageLabelView()),
-                      CustomCard('Object Detection', ObjectDetectorView()),
-                      CustomCard('Text Recognition', TextRecognizerView()),
-                      CustomCard('Digital Ink Recognition', DigitalInkView()),
-                      CustomCard('Pose Detection', PoseDetectorView()),
-                      CustomCard('Selfie Segmentation', SelfieSegmenterView()),
+                      // CustomCard('Image Labeling', ImageLabelView()),
+                      // CustomCard('Object Detection', ObjectDetectorView()),
+                      // CustomCard('Text Recognition', TextRecognizerView()),
+                      // CustomCard('Digital Ink Recognition', DigitalInkView()),
+                      // CustomCard('Pose Detection', PoseDetectorView()),
+                      // CustomCard('Selfie Segmentation', SelfieSegmenterView()),
                     ],
                   ),
                   SizedBox(
@@ -69,11 +107,11 @@ class Home extends StatelessWidget {
                   ExpansionTile(
                     title: const Text('Natural Language APIs'),
                     children: [
-                      CustomCard('Language ID', LanguageIdentifierView()),
-                      CustomCard(
-                          'On-device Translation', LanguageTranslatorView()),
-                      CustomCard('Smart Reply', SmartReplyView()),
-                      CustomCard('Entity Extraction', EntityExtractionView()),
+                      // CustomCard('Language ID', LanguageIdentifierView()),
+                      // CustomCard(
+                      //     'On-device Translation', LanguageTranslatorView()),
+                      // CustomCard('Smart Reply', SmartReplyView()),
+                      // CustomCard('Entity Extraction', EntityExtractionView()),
                     ],
                   ),
                 ],

@@ -14,7 +14,9 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
   final FaceDetector _faceDetector = FaceDetector(
     options: FaceDetectorOptions(
       enableContours: true,
+      enableTracking: true,
       enableClassification: true,
+      // minFaceSize: 1,
     ),
   );
   bool _canProcess = true;
@@ -46,29 +48,33 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
     if (!_canProcess) return;
     if (_isBusy) return;
     _isBusy = true;
-    setState(() {
-      _text = '';
-    });
     final faces = await _faceDetector.processImage(inputImage);
-    if (inputImage.inputImageData?.size != null &&
-        inputImage.inputImageData?.imageRotation != null) {
-      final painter = FaceDetectorPainter(
-          faces,
-          inputImage.inputImageData!.size,
-          inputImage.inputImageData!.imageRotation);
-      _customPaint = CustomPaint(painter: painter);
-    } else {
-      String text = 'Faces found: ${faces.length}\n\n';
-      for (final face in faces) {
-        text += 'face: ${face.boundingBox}\n\n';
+    if (faces.isNotEmpty && faces.length < 2) {
+      if (inputImage.inputImageData?.size != null &&
+          inputImage.inputImageData?.imageRotation != null) {
+        final face = faces.first;
+        final painter = FaceDetectorPainter(
+            faces,
+            inputImage.inputImageData!.size,
+            inputImage.inputImageData!.imageRotation);
+        _customPaint = CustomPaint(painter: painter);
+        _text =
+            '${face.trackingId}\t\nleftEyeOpenProbability :: ${face.leftEyeOpenProbability}\nrightEyeOpenProbability :: ${face.rightEyeOpenProbability}\nsmilingProbability :: ${face.smilingProbability}}';
+      } else {
+        _customPaint = null;
+        _text = 'Error';
       }
-      _text = text;
-      // TODO: set _customPaint to draw boundingRect on top of image
+    } else {
       _customPaint = null;
+      _text = 'Make sure there is one & only one person in frame';
     }
     _isBusy = false;
     if (mounted) {
-      setState(() {});
+      setState(() {
+        _customPaint = _customPaint;
+        _isBusy = _isBusy;
+        _text = _text;
+      });
     }
   }
 }
